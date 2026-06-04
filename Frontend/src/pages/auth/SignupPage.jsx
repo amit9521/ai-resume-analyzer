@@ -3,6 +3,8 @@ import MainLayout from "../../layouts/MainLayout";
 import Card from "../../components/common/Card";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
+import { signupUser } from "../../services/authService";
+import { validateSignup } from "../../utils/validation";
 
 function SignupPage() {
   const [formData, setFormData] = useState({
@@ -11,6 +13,10 @@ function SignupPage() {
     password: "",
     confirmPassword: "",
   });
+
+  const [loading, setLoading] = useState(false);
+
+  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,45 +27,49 @@ function SignupPage() {
     }));
   };
 
- const handleSubmit = (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const {
-    fullName,
-    email,
-    password,
-    confirmPassword,
-  } = formData;
+    const error = validateSignup(formData);
 
-  if (!fullName.trim()) {
-    alert("Name is required");
-    return;
-  }
+    if (error) {
+      setMessage(error);
+      return;
+    }
 
-  if (!email.trim()) {
-    alert("Email is required");
-    return;
-  }
+    try {
+      setLoading(true);
 
-  if (!password.trim()) {
-    alert("Password is required");
-    return;
-  }
+      const payload = {
+        fullName: formData.fullName,
 
-  if (password !== confirmPassword) {
-    alert("Passwords do not match");
-    return;
-  }
+        email: formData.email,
 
-  console.log(formData);
-};
+        password: formData.password,
+      };
+
+      const response = await signupUser(payload);
+      setMessage(response.data);
+
+      setFormData({
+        fullName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+      // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      setMessage("Signup Failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <MainLayout>
       <div className="flex justify-center items-center min-h-[80vh]">
         <Card>
           <div className="w-[450px]">
-
             <h1 className="text-3xl font-bold text-center mb-2">
               Create Account
             </h1>
@@ -67,9 +77,14 @@ function SignupPage() {
             <p className="text-center text-gray-500 mb-6">
               Join AI Resume Analyzer
             </p>
-
+            {message && (
+              <p
+                className="mb-4 text-center text-green-600"
+              >
+                {message}
+              </p>
+            )}
             <form onSubmit={handleSubmit}>
-
               <div className="mb-4">
                 <Input
                   name="fullName"
@@ -109,13 +124,9 @@ function SignupPage() {
                 />
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-              >
-                Create Account
+              <Button type="submit" className="w-full">
+                {loading ? "Creating..." : "Create Account1"}
               </Button>
-
             </form>
           </div>
         </Card>
