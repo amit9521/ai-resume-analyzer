@@ -4,30 +4,45 @@ import Card from "../../components/common/Card";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import PasswordInput from "../../components/common/PasswordInput";
+import { loginUser } from "../../services/authService";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!email.trim()) {
-    alert("Email is required");
-    return;
-  }
+    if (!email.trim()) {
+      setMessage("Email is required");
+      return;
+    }
 
-  if (!password.trim()) {
-    alert("Password is required");
-    return;
-  }
+    if (!password.trim()) {
+      setMessage("Password is required");
+      return;
+    }
 
-  console.log({
-    email,
-    password,
-  });
-};
-  console.log(email)
+    try {
+      setLoading(true);
+
+      const response = await loginUser({
+        email,
+        password,
+      });
+
+      setMessage(response.data.message);
+
+      console.log("Login Response", response.data);
+    } catch (error) {
+      setMessage(error.response?.data || "Login Failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+  console.log(email);
   return (
     <MainLayout>
       <div className="flex justify-center items-center min-h-[80vh]">
@@ -37,10 +52,18 @@ function LoginPage() {
               Welcome Back
             </h1>
 
-            <p className="text-gray-500 text-center mb-6">
-              Login to continue
-            </p>
-
+            <p className="text-gray-500 text-center mb-6">Login to continue</p>
+            {message && (
+              <p
+                className={`text-center mb-4 ${
+                  message === "Login Successful"
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {message}
+              </p>
+            )}
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <Input
@@ -60,11 +83,8 @@ function LoginPage() {
                 />
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-              >
-                Login
+              <Button type="submit" className="w-full">
+                {loading ? "Logging In..." : "Login"}
               </Button>
             </form>
           </div>
