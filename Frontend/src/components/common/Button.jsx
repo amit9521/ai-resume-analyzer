@@ -3,6 +3,7 @@ function Button({
   type = "button",
   onClick,
   className = "",
+  disabled=false
 }) {
   return (
     <button
@@ -20,6 +21,8 @@ function Button({
         cursor-pointer
         ${className}
       `}
+       disabled={disabled}
+      
     >
       {children}
     </button>

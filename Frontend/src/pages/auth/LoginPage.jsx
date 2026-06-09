@@ -3,6 +3,7 @@ import MainLayout from "../../layouts/MainLayout";
 import Card from "../../components/common/Card";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
+import PasswordInput from "../../components/common/PasswordInput";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -51,7 +52,7 @@ function LoginPage() {
               </div>
 
               <div className="mb-6">
-                <Input
+                <PasswordInput
                   type="password"
                   placeholder="Enter Password"
                   value={password}

@@ -5,6 +5,7 @@ import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import { signupUser } from "../../services/authService";
 import { validateSignup } from "../../utils/validation";
+import PasswordInput from "../../components/common/PasswordInput";
 
 function SignupPage() {
   const [formData, setFormData] = useState({
@@ -59,7 +60,7 @@ function SignupPage() {
       });
       // eslint-disable-next-line no-unused-vars
     } catch (error) {
-      setMessage("Signup Failed");
+      setMessage(error.response?.data || "Signup Failed");
     } finally {
       setLoading(false);
     }
@@ -78,11 +79,7 @@ function SignupPage() {
               Join AI Resume Analyzer
             </p>
             {message && (
-              <p
-                className="mb-4 text-center text-green-600"
-              >
-                {message}
-              </p>
+              <p className="mb-4 text-center text-green-600">{message}</p>
             )}
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -105,7 +102,7 @@ function SignupPage() {
               </div>
 
               <div className="mb-4">
-                <Input
+                <PasswordInput
                   name="password"
                   type="password"
                   placeholder="Password"
@@ -115,7 +112,7 @@ function SignupPage() {
               </div>
 
               <div className="mb-6">
-                <Input
+                <PasswordInput
                   name="confirmPassword"
                   type="password"
                   placeholder="Confirm Password"
