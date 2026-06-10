@@ -7,6 +7,7 @@ import com.somity.ai_resume_analyzer.entity.User;
 import com.somity.ai_resume_analyzer.exception.EmailAlreadyExistsException;
 import com.somity.ai_resume_analyzer.exception.InvalidCredentialsException;
 import com.somity.ai_resume_analyzer.repository.UserRepository;
+import com.somity.ai_resume_analyzer.security.JwtUtil;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,12 @@ public class UserService {
 
         private final UserRepository userRepository;
         private final BCryptPasswordEncoder passwordEncoder;
+        private final JwtUtil jwtUtil;
 
-        public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+        public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
                 this.userRepository = userRepository;
                 this.passwordEncoder = passwordEncoder;
+                this.jwtUtil = jwtUtil;
         }
 
         public String signup(SignupRequest request) {
@@ -45,11 +48,15 @@ public class UserService {
                 User user = userRepository.findByEmail(request.getEmail())
                                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
-                boolean matches = passwordEncoder.matches(request.getPassword(),user.getPassword());
+                boolean matches = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
                 if (!matches) {
-                            throw new InvalidCredentialsException("Invalid email or password");
+                        throw new InvalidCredentialsException("Invalid email or password");
                 }
-                         return new LoginResponse("Login Successful",user.getEmail());
+                
+                String token = jwtUtil.generateToken(user.getEmail());
+
+                return new LoginResponse("Login Successful",user.getEmail(),token);
+                
         }
 }

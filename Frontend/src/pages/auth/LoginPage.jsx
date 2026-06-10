@@ -33,7 +33,13 @@ function LoginPage() {
         password,
       });
 
+      localStorage.setItem("token", response.data.token);
+
+      localStorage.setItem("email", response.data.email);
+
       setMessage(response.data.message);
+
+      localStorage.getItem("token")
 
       console.log("Login Response", response.data);
     } catch (error) {
